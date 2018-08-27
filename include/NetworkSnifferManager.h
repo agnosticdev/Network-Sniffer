@@ -19,7 +19,7 @@ public:
 	unsigned char *readBuffer;
 
 	int bufferSize;
-	int tcpSocketFD;
+	int socketFD;
 	int tcp;
 	int udp;
 	int icmp;

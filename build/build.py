@@ -8,8 +8,11 @@ import os, sys
 
 print("******************* Building Network Sniffer *************************")
 
+os.system("rm -rf /include/NetworkSniffer")
+
 os.system("cmake .")
 
 os.system("make")
 
-os.system("./include/NetworkSniffer")
+# Use sudo because opening a raw socket requires elevated permissions.
+os.system("sudo ./include/NetworkSniffer")

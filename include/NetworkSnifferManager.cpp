@@ -8,7 +8,7 @@
 NetworkSnifferManager::NetworkSnifferManager(int BufferSize) {
   bufferSize = BufferSize;
   readBuffer = new unsigned char[bufferSize]();
-  tcpSocketFD = 0;
+  socketFD = 0;
   tcp = 0;
   udp = 0;
   icmp = 0;
@@ -31,17 +31,16 @@ void NetworkSnifferManager::OpenConnection() {
   struct sockaddr socketAddress;
 
   // https://stackoverflow.com/questions/6878603/strange-raw-socket-on-mac-os-x
-  this->tcpSocketFD = socket(AF_INET, SOCK_RAW, IPPROTO_TCP);
-  std::cout << "Socket " << this->tcpSocketFD << std::endl;
-  if (this->tcpSocketFD < 0) {
+  this->socketFD = socket(AF_INET, SOCK_RAW, IPPROTO_TCP);
+  if (this->socketFD < 0) {
   	// terminate program with message
   	std::cout << "Connection failed to open" << std::endl;
   	exit (EXIT_FAILURE);
   }
-  
-  while (index < 10) {
+
+  while (index < 100) {
 	saddrSize = sizeof socketAddress;
-	dataSize = recvfrom(tcpSocketFD, this->readBuffer, 
+	dataSize = recvfrom(this->socketFD, this->readBuffer, 
 						 this->bufferSize, 0, &socketAddress, &saddrSize);
 	std::cout << "Data Size" << dataSize << std::endl;
 	if (dataSize < 0) {
@@ -52,7 +51,7 @@ void NetworkSnifferManager::OpenConnection() {
  	this->ReadPacket(this->readBuffer, dataSize);
  	index += 1;
   }
-  close(this->tcpSocketFD);
+  close(this->socketFD);
 
 }
 

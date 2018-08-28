@@ -10,7 +10,7 @@ print("******************* Building Network Sniffer *************************")
 
 os.system("rm -rf /include/NetworkSniffer")
 
-os.system("cmake .")
+os.system("cmake ..")
 
 os.system("make")
 

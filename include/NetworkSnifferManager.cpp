@@ -38,18 +38,18 @@ void NetworkSnifferManager::OpenConnection() {
   	exit (EXIT_FAILURE);
   }
 
-  while (index < 100) {
-	saddrSize = sizeof socketAddress;
-	dataSize = recvfrom(this->socketFD, this->readBuffer, 
+  while (index < 30) {
+	  saddrSize = sizeof socketAddress;
+	  dataSize = recvfrom(this->socketFD, this->readBuffer, 
 						 this->bufferSize, 0, &socketAddress, &saddrSize);
-	std::cout << "Data Size" << dataSize << std::endl;
-	if (dataSize < 0) {
-		// terminate program with message
-		std::cout << "Failed to receive data from packets" << std::endl;
+	  std::cout << "Data Size " << dataSize << std::endl;
+	  if (dataSize < 0) {
+		  // terminate program with message
+		  std::cout << "Failed to receive data from packets" << std::endl;
   	    exit (EXIT_FAILURE);
-	}
- 	this->ReadPacket(this->readBuffer, dataSize);
- 	index += 1;
+	  }
+ 	  this->ReadPacket(this->readBuffer, dataSize);
+ 	  index += 1;
   }
   close(this->socketFD);
 
@@ -57,13 +57,15 @@ void NetworkSnifferManager::OpenConnection() {
 
 
 void NetworkSnifferManager::ReadPacket(unsigned char *read_buffer, int dataSize) {
-
-  // struct iphdr for Linux
-  //struct iphdr *iph = (struct iphdr *)read_buffer;
-  // struct ip for macOS
+  
+  // nano /usr/include/netinet/ip.h
+  // http://www.msg.ucsf.edu/local/ganglia/ganglia-monitor-core-2.5.3/lib/dnet/ip.h
+  // struct ip for usage on all *nix system  
   struct ip *iph = (struct ip *)read_buffer;
   this->total++;
 
+
+  std::cout << "Protocol " << (int)iph->ip_p << std::endl;
   switch (iph->ip_p) {
     case 1: // ICMP 
       this->icmp++;
@@ -76,6 +78,11 @@ void NetworkSnifferManager::ReadPacket(unsigned char *read_buffer, int dataSize)
       break;
     case 17: // UDP
       this->udp++;
+      break;
+    default:
+      this->others++;
+      break;
+
   }
-  std::cout << "TCP : " << this->tcp << " UDP : " << this->udp << " ICMP : " << this->icmp << " Total : " << this->total << "\r" << std::endl;
+  std::cout << "TCP : " << this->tcp << " UDP : " << this->udp << " ICMP : " << this->icmp << " Others : " << this->others << " Total : " << this->total << "\r" << std::endl;
 }

@@ -1,8 +1,9 @@
 #include <unistd.h>
+#include <netinet/ip.h>
+#include <netinet/ip_icmp.h>
+#include <netinet/udp.h>
 #include <netinet/tcp.h>
 #include <netinet/in.h>
-#include <netinet/ip.h>
-
 
 class NetworkSnifferManager {
 

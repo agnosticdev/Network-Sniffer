@@ -11,6 +11,8 @@ set (NetworkSniffer_VERSION_MINOR 1)
 
 # Set debug symbols and all warnings.
 set(CMAKE_CXX_FLAGS "-g -Wall")
+set(CMAKE_CXX_FLAGS "-std=gnu++11")
+set(CMAKE_CXX_FLAGS "-std=c++11")
 
 # Add current and include directory
 set(CMAKE_INCLUDE_CURRENT_DIR ON)

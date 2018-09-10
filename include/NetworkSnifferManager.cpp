@@ -5,7 +5,7 @@
 
 #pragma mark Network Sniffer Manager construction/destruction
 
-NetworkSnifferManager::NetworkSnifferManager(int BufferSize) {
+NetworkSnifferManager::NetworkSnifferManager(size_t BufferSize) {
   bufferSize = BufferSize;
   readBuffer = new unsigned char[bufferSize]();
   socketFD = 0;
@@ -25,10 +25,10 @@ NetworkSnifferManager::~NetworkSnifferManager() {
 
 void NetworkSnifferManager::OpenConnection() {
 
-  unsigned int saddrSize;
   int dataSize;
   int index = 0;
-  struct sockaddr socketAddress;
+  struct sockaddr_in socketAddress; // IPv4
+  socklen_t socketAddressSize = sizeof(struct sockaddr_in);
 
   // https://stackoverflow.com/questions/6878603/strange-raw-socket-on-mac-os-x
   this->socketFD = socket(AF_INET, SOCK_RAW, IPPROTO_TCP);
@@ -38,16 +38,23 @@ void NetworkSnifferManager::OpenConnection() {
   	exit (EXIT_FAILURE);
   }
 
-  while (index < 30) {
-	  saddrSize = sizeof socketAddress;
-	  dataSize = recvfrom(this->socketFD, this->readBuffer, 
-						 this->bufferSize, 0, &socketAddress, &saddrSize);
+  while (index < 20) {
+	  
+	  dataSize = recvfrom(this->socketFD, 
+                        this->readBuffer, 
+						            this->bufferSize, 
+                        0, 
+                        (struct sockaddr *)&socketAddress, 
+                        &socketAddressSize);
+
 	  std::cout << "Data Size " << dataSize << std::endl;
 	  if (dataSize < 0) {
 		  // terminate program with message
 		  std::cout << "Failed to receive data from packets" << std::endl;
   	    exit (EXIT_FAILURE);
 	  }
+
+
  	  this->ReadPacket(this->readBuffer, dataSize);
  	  index += 1;
   }
@@ -61,11 +68,11 @@ void NetworkSnifferManager::ReadPacket(unsigned char *read_buffer, int dataSize)
   // nano /usr/include/netinet/ip.h
   // http://www.msg.ucsf.edu/local/ganglia/ganglia-monitor-core-2.5.3/lib/dnet/ip.h
   // struct ip for usage on all *nix system  
+  // iph->ip_p reads as an unsigned char is c++ gcc 0-255
   struct ip *iph = (struct ip *)read_buffer;
-  this->total++;
+  this->total++; 
 
-
-  std::cout << "Protocol " << (int)iph->ip_p << std::endl;
+  std::cout << "Protocol " << (int)(iph->ip_p) << std::endl;
   switch (iph->ip_p) {
     case 1: // ICMP 
       this->icmp++;
